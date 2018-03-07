@@ -1,0 +1,122 @@
+{include file="Public/header" /}
+
+<body>
+<div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="javasrcipt:;">商品管理</a>
+        <a href="javasrcipt:;">补货记录</a>
+        <a>
+          <cite>记录首页</cite></a>
+      </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+</div>
+<div class="x-body">
+    <xblock>
+        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+        <span class="x-right" style="line-height:40px"></span>
+    </xblock>
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th style="width: 5%;text-align: center;">
+                <div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i class="layui-icon">
+                    &#xe605;</i></div>
+            </th>
+            <th>ID</th>
+            <th>冰箱编号</th>
+            <th>商品名称</th>
+            <th>补货单价</th>
+            <th>补货件数</th>
+            <th>补货总计</th>
+            <th>补货时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {volist name="supplyments" id="vo"}
+        <tr>
+            <td style="text-align: center;">
+                <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id='{$vo.id}'><i class="layui-icon">
+                    &#xe605;</i></div>
+            </td>
+            <td>{$vo.id}</td>
+            <td>{$vo.brige.code}</td>
+            <td><span style="color: #393D49;">{$vo.product.name}</span></td>
+            <td>¥ <span style="color: #5FB878;">{$vo.product.price}</span></td>
+            <td><span style="color: #FF5722;">{$vo.units}</span></td>
+            <td>
+                ¥
+                <span style="color: #FF5722;">
+                    {$vo.product.price * $vo.units}
+                </span>
+            </td>
+            <td>
+                {$vo.create_time}
+            </td>
+            <td class="td-manage" style="width: 5%;">
+                <a title="删除" onclick="member_del(this,'{$vo.id}')" href="javascript:;">
+                    <i class="layui-icon">&#xe640;</i>
+                </a>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    <div class="page">
+
+    </div>
+
+</div>
+<script>
+    layui.use('laydate', function () {
+        $ = layui.jquery;
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+
+    /*用户-删除*/
+    function member_del(obj, id) {
+        layer.confirm('确认要删除吗？', function (index) {
+            //发异步删除数据
+            $.post("{:url('Lost/suDel')}",{"id": id}, function(res){
+                if(res == 1){
+                    layer.msg('已删除!', {icon: 1, time: 1000});
+                } else{
+                    layer.msg('删除失败!', {icon: 2, time: 1000});
+                }
+            }, 'JSON');
+
+        });
+    }
+
+
+    function delAll(argument) {
+
+        var data = tableCheck.getData();
+
+        layer.confirm('确认要删除吗？', function (index) {
+            //捉到所有被选中的，发异步进行删除
+            $.post("{:url('Lost/suBatchDel')}",{"ids": data}, function(res){
+                if(res == 1){
+                    layer.msg('删除成功', {icon: 1});
+                }else{
+                    layer.msg('删除失败', {icon: 2});
+                }
+            }, 'JSON');
+        });
+    }
+</script>
+</body>
+
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>分配广告</title>
+    <link rel="stylesheet" href="__STATIC__/css/style.css" media="screen" type="text/css"/>
+    <script src="__STATIC__/lib/layui/layui.js"></script>
+
+</head>
+
+<body>
+<div class="ad_selections">
+    <div class="clearfix">
+        <button class="select">&nbsp;</button>
+        <h1>配置默认广告方案</h1>
+        <button id="send_ad" class="send " data-counter="0">&#10004;提交</button>
+    </div>
+    <div id="ad_img">
+        <ul>
+            {volist name="fridges" id="vo"}
+            <li data-id="{$vo.brige_id}">
+                <h3>{$vo.code}</h3>
+                <span>{$vo.address}</span>
+            </li>
+            {/volist}
+        </ul>
+    </div>
+</div>
+<input id="ads" type="hidden" name="ads" value="{$ads}">
+</body>
+
+<script src='__STATIC__/js/jquery.js'></script>
+<script>
+    $(function(){
+        $('li').click(function () {
+            $(this).toggleClass('selected');
+            if ($('li.selected').length == 0)
+                $('.select').removeClass('selected');
+            else
+                $('.select').addClass('selected');
+            counter();
+        });
+
+        // all item selection
+        $('.select').click(function () {
+            if ($('li.selected').length == 0) {
+                $('li').addClass('selected');
+                $('.select').addClass('selected');
+            }
+            else {
+                $('li').removeClass('selected');
+                $('.select').removeClass('selected');
+            }
+            counter();
+        });
+
+        // number of selected items
+        function counter() {
+            if ($('li.selected').length > 0)
+                $('.send').addClass('selected');
+            else
+                $('.send').removeClass('selected');
+            $('.send').attr('data-counter',$('li.selected').length);
+        }
+
+
+        layui.use(['form','layer'], function () {
+            var layer = layui.layer;
+
+            $("#send_ad").click(function () {
+                var fridges = '',
+                        ads = $("#ads").val();
+                $('#ad_img').find('li').each(function () {
+                    if ($(this).hasClass('selected')) {
+                        var fridge_id = $(this).attr('data-id');
+                        fridges += fridge_id + ",";
+                    }
+                });
+                fridges = fridges.substring(0, fridges.length - 1);
+                fridges = fridges.split(',');
+                ads = ads.split(',');
+                $.post("{:url('Ad/allotAdToFridge')}", {"ads": ads, "fridges": fridges}, function (res) {
+                    if (res == 1) {
+                        layer.msg("批量设置广告成功", {icon: 6}, function () {
+                            // 获得frame索引
+                            var index = parent.layer.getFrameIndex(window.name);
+                            //关闭当前frame
+                            parent.layer.close(index);
+                        });
+                    } else {
+                        layer.msg("设置广告失败,请重试!", {icon: 2});
+                    }
+                }, 'JSON');
+
+            });
+        });
+    });
+</script>
+
+</html>

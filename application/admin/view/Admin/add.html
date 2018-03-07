@@ -1,0 +1,73 @@
+{include file="Public/header" /}
+<body>
+<div class="x-body">
+    <form class="layui-form">
+
+        <div class="layui-form-item">
+            <label for="name" class="layui-form-label">
+                <span class="x-red">*</span>用户名
+            </label>
+            <div class="layui-input-block">
+                <input type="text" id="name" name="name" required="" lay-verify="mobile"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="mobile" class="layui-form-label">
+                <span class="x-red">*</span>手机号码
+            </label>
+            <div class="layui-input-block">
+                <input type="text" id="mobile" name="mobile" required="" lay-verify="mobile"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="password" class="layui-form-label">
+                <span class="x-red">*</span>登录密码
+            </label>
+            <div class="layui-input-block">
+                <input type="password" id="password" name="password" required="" lay-verify="require"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+            </label>
+            <button class="layui-btn" lay-filter="add" lay-submit="">
+                添加管理员
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+    layui.use(['form', 'layer'], function () {
+        $ = layui.jquery;
+        var form = layui.form;
+        var layer = layui.layer;
+
+        //监听提交
+        form.on('submit(add)', function (data) {
+            //发异步，把数据提交给php
+            $.post("{:url('Admin/saveAdmin')}",{"field":data.field},function(res){
+                if(res == 1){
+                    layer.alert("添加成功", {icon: 6}, function () {
+                        // 获得frame索引
+                        var index = parent.layer.getFrameIndex(window.name);
+                        //关闭当前frame
+                        parent.layer.close(index);
+                    });
+                }else if(res == 3){
+                    layer.msg("已经添加过了", {icon: 2});
+                } else{
+                    layer.msg("添加失败!", {icon: 2});
+                }
+            }, 'JSON');
+
+            return false;
+        });
+
+    });
+</script>
+</body>
+
+</html>

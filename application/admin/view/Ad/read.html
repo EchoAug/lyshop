@@ -1,0 +1,33 @@
+{include file="Public/header" /}
+
+<body>
+<div class="x-body">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label for="title" class="layui-form-label">
+                <span class="x-red">*</span>广告名称
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="title" name="title" required=""
+                       autocomplete="off" class="layui-input" value="{$ad.title}">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>广告名称
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="description" class="layui-form-label">
+                <span class="x-red">*</span>广告描述
+            </label>
+            <div class="layui-input-inline">
+                <textarea style="width: 185px;height: 280px;" class="layui-textarea" id="description" name="description">{$ad.description}</textarea>
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>广告描述
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+
+</html>

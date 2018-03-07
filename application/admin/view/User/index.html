@@ -1,0 +1,167 @@
+{include file="Public/header" /}
+<body>
+<div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">会员管理</a>
+        <a href="">会员列表</a>
+        <a>
+          <cite>首页</cite></a>
+      </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+</div>
+<div class="x-body">
+    <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so" action="" method="get">
+            <input type="text" name="mobile" placeholder="手机号" autocomplete="off" value="{$mobile}"
+                   class="layui-input">
+            <button class="layui-btn" lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+    </div>
+    <xblock>
+        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+        <span style="line-height:40px;margin-left:36px;">充值人数: ¥ <span style="color: #FF5722;font-size: 20px;">{$personTime}</span>人次</span>
+        <span style="line-height:40px;margin-left: 20px;">充值总金额: ¥ <span style="color: #FF5722;font-size: 20px;">{$grossAmount}</span>元</span>
+        <span style="line-height:40px;margin-left:50px;">后台充值人数: ¥ <span style="color: #FF5722;font-size: 20px;">{$personTimeAdmin}</span>人次</span>
+        <span style="line-height:40px;margin-left: 20px;">后台充值总金额: ¥ <span style="color: #FF5722;font-size: 20px;">{$grossAmountAdmin}</span>元</span>
+        <span style="line-height:40px;margin-left:50px;">总充值人数: ¥ <span style="color: #FF5722;font-size: 20px;">{$personTimeAll}</span>人次</span>
+        <span style="line-height:40px;margin-left: 20px;">总充值总金额: ¥ <span style="color: #FF5722;font-size: 20px;">{$grossAmountAll}</span>元</span>
+    </xblock>
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>
+                <div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i class="layui-icon">&#xe605;</i></div>
+            </th>
+            <th>用户ID</th>
+            <th>openID</th>
+            <th>余额</th>
+            <th>手机号</th>
+            <th>加入时间</th>
+            <th>消费总额</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {volist name="users" id="vo"}
+        <tr>
+            <td>
+                <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id="{$vo.id}"><i class="layui-icon">&#xe605;</i></div>
+            </td>
+            <td>{$vo.id}</td>
+            <td>{$vo.openid}</td>
+            <td>
+                {if condition="$vo.balance eq 0"}
+                0
+                {else /}
+                {$vo.balance}
+                {/if}
+                元
+            </td>
+            <td>
+                {if condition="$vo.mobile eq ''"}
+                    暂未绑定手机号
+                {else /}
+                {$vo.mobile}
+                {/if}
+            </td>
+            <td>{$vo.create_time}</td>
+            <td>
+                {$vo.consumption}
+            </td>
+            <td class="td-manage" style="width: 8%;">
+                <a title="查看订单" onclick="august_admin_show('订单记录','{:url("User/expenseTracker",["uid" => $vo.id])}')" href="javascript:;">
+                    <i class="layui-icon">&#xe857;</i>
+                </a>
+                &nbsp;
+				<a title="充值" onclick="august_admin_show('充值','{:url("User/recharge",["uid" => $vo.id])}',400,200)" href="javascript:;">
+                    <i class="layui-icon">&#xe65e;</i>
+                </a>
+                &nbsp;
+                <a title="删除" onclick="member_del(this,'{$vo.id}')" href="javascript:;">
+                    <i class="layui-icon">&#xe640;</i>
+                </a>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    <div class="page">
+        {$users->render()}
+    </div>
+
+</div>
+<script>
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+
+    /*用户-停用*/
+    function member_stop(obj, id) {
+        layer.confirm('确认要停用吗？', function (index) {
+
+            if ($(obj).attr('title') == '启用') {
+
+                //发异步把用户状态进行更改
+                $(obj).attr('title', '停用')
+                $(obj).find('i').html('&#xe62f;');
+
+                $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
+                layer.msg('已停用!', {icon: 5, time: 1000});
+
+            } else {
+                $(obj).attr('title', '启用')
+                $(obj).find('i').html('&#xe601;');
+
+                $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
+                layer.msg('已启用!', {icon: 5, time: 1000});
+            }
+
+        });
+    }
+
+    /*用户-删除*/
+    function member_del(obj, id) {
+        layer.confirm('确认要删除吗？', function (index) {
+            //发异步删除数据
+            $.post("{:url('User/del')}",{"id":id}, function(res){
+                if(res == 1){
+                    layer.msg('已删除!',{icon:1,time:1000});
+                } else{
+                    layer.msg('未删除!',{icon:2,time:1000});
+                }
+            }, 'JSON');
+        });
+    }
+
+
+    function delAll(argument) {
+
+        var data = tableCheck.getData();
+
+        layer.confirm('确认要删除吗？', function (index) {
+            //捉到所有被选中的，发异步进行删除
+            $.post("{:url('User/batchDel')}",{"ids":data}, function(res){
+                if(res == 1){
+                    layer.msg('已删除!',{icon:1,time:1000});
+                } else{
+                    layer.msg('未删除!',{icon:2,time:1000});
+                }
+            }, 'JSON');
+        });
+    }
+</script
+</body>
+
+</html>

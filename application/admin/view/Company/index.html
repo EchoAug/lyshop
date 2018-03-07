@@ -1,0 +1,195 @@
+{include file="Public/header" /}
+<body>
+<div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">公司管理</a>
+        <a href="">申请入驻</a>
+        <a>
+          <cite>首页</cite>
+        </a>
+      </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+</div>
+<div class="x-body">
+    <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so" action="" method="get">
+            <input class="layui-input" placeholder="开始日" name="start" id="start" value="{$start}">
+            ----
+            <input class="layui-input" placeholder="截止日" name="end" id="end" value="{$end}">
+            <div class="layui-input-inline">
+                <select name="status">
+                    <option value="">入驻状态</option>
+                    <option value="-1" {if condition="$status eq -1" } selected {/if}>未处理</option>
+                    <option value="1" {if condition="$status eq 1" } selected {/if}>已通过</option>
+                    <option value="2" {if condition="$status eq 2" } selected {/if}>不通过</option>
+                </select>
+            </div>
+            <input type="text" name="company_name" placeholder="请输入公司名称" autocomplete="off" value="{$company_name}"
+                   class="layui-input">
+            <button class="layui-btn" lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+    </div>
+    <xblock>
+        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+        <span class="x-right" style="line-height:40px"></span>
+    </xblock>
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>
+                <div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i class="layui-icon">
+                    &#xe605;</i></div>
+            </th>
+            <th>公司名称</th>
+            <th>公司规模</th>
+            <th>公司地址</th>
+            <th>联系人</th>
+            <th>联系电话</th>
+            <th>申请时间</th>
+            <th>申请状态</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {volist name="companys" id="vo"}
+        <tr>
+            <td>
+                <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id='{$vo.id}'><i
+                        class="layui-icon">
+                    &#xe605;</i></div>
+            </td>
+            <td>{$vo.company_name}</td>
+            <td>{$vo.scale}</td>
+            <td>{$vo.address}</td>
+            <td>{$vo.linkman}</td>
+            <td>{$vo.phone}</td>
+            <td>
+                {switch name="$vo.status"}
+                {case value="1"}
+                <button class="layui-btn layui-btn-mini">通过申请</button>
+                {/case}
+                {case value="2"}
+                <button class="layui-btn layui-btn-warm layui-btn-mini">不通过</button>
+                {/case}
+                {default /}
+                <button class="layui-btn layui-btn-normal layui-btn-mini">未处理</button>
+                {/switch}
+            </td>
+            <td>{$vo.create_time}</td>
+            <td class="td-manage" style="width: 6%;">
+                {if condition="$vo.status eq -1"}
+                <a title="审核" onclick="change_status(this,'{$vo.id}')" href="javascript:;">
+                    <i class="layui-icon">&#xe605;</i>
+                </a>&nbsp;
+				{/if}
+                <a title="删除" onclick="member_del(this,'{$vo.id}')" href="javascript:;">
+                    <i class="layui-icon">&#xe640;</i>
+                </a>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    <div class="page">
+        {$companys->render();}
+    </div>
+
+</div>
+<script>
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+
+    /*用户-停用*/
+    function member_stop(obj, id) {
+        layer.confirm('确认要停用吗？', function (index) {
+
+            if ($(obj).attr('title') == '启用') {
+
+                //发异步把用户状态进行更改
+                $(obj).attr('title', '停用')
+                $(obj).find('i').html('&#xe62f;');
+
+                $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
+                layer.msg('已停用!', {icon: 5, time: 1000});
+
+            } else {
+                $(obj).attr('title', '启用')
+                $(obj).find('i').html('&#xe601;');
+
+                $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
+                layer.msg('已启用!', {icon: 5, time: 1000});
+            }
+
+        });
+    }
+
+    /*用户-删除*/
+    function member_del(obj, id) {
+        layer.confirm('确认要删除吗？', function (index) {
+            //发异步删除数据
+            $.post("{:url('Company/del')}", {"id": id}, function (res) {
+                if (res == 1) {
+                    layer.msg('已删除!', {icon: 1, time: 1000});
+                } else {
+                    layer.msg('未删除!', {icon: 2, time: 1000});
+                }
+            }, 'JSON');
+        });
+    }
+
+
+    function delAll(argument) {
+
+        var data = tableCheck.getData();
+
+        layer.confirm('确认要删除吗？', function (index) {
+            //捉到所有被选中的，发异步进行删除
+            $.post("{:url('Company/batchDel')}", {"ids": data}, function (res) {
+                if (res == 1) {
+                    layer.msg('已删除!', {icon: 1, time: 1000});
+                } else {
+                    layer.msg('未删除!', {icon: 2, time: 1000});
+                }
+            }, 'JSON');
+        });
+    }
+
+    function change_status(obj, id){
+        //询问框
+        layer.confirm('入驻申请通过吗？', {
+            btn: ['通过','拒绝'] //按钮
+        }, function(){
+            $.post("{:url('Company/settle')}", {"id": id ,"status": 1}, function (res) {
+                if (res == 1) {
+                    layer.msg('处理完成!', {icon: 1, time: 1000});
+                } else {
+                    layer.msg('处理失败!', {icon: 2, time: 1000});
+                }
+            }, 'JSON');
+        }, function(){
+            $.post("{:url('Company/settle')}", {"id": id,"status": 2}, function (res) {
+                if (res == 1) {
+                    layer.msg('处理完成!', {icon: 1, time: 1000});
+                } else {
+                    layer.msg('处理失败!', {icon: 2, time: 1000});
+                }
+            }, 'JSON');
+        });
+    }
+</script>
+</body>
+
+</html>

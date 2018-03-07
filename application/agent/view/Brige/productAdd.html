@@ -1,0 +1,68 @@
+{include file="Public/header" /}
+<body>
+<div class="x-body">
+    <form class="layui-form">
+
+        <div class="layui-form-item">
+            <label for="product_id" class="layui-form-label">
+                <span class="x-red">*</span>商品
+            </label>
+            <div class="layui-input-block">
+                <select name="product_id" lay-verify="required" id="product_id" lay-search>
+                    {volist name="product" id="vo"}
+                        <option value="{$vo.product_id}" >{$vo.name}</option>
+                    {/volist}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="stock" class="layui-form-label">
+                <span class="x-red">*</span>库存量
+            </label>
+            <div class="layui-input-block">
+                <input type="text" id="stock" name="stock" required="" lay-verify="number"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <input type="hidden" value="{:input('param.id')}" name="brige_id">
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+            </label>
+            <button class="layui-btn" lay-filter="add" lay-submit="">
+                增加商品
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+    layui.use(['form', 'layer'], function () {
+        $ = layui.jquery;
+        var form = layui.form;
+        var layer = layui.layer;
+
+        //监听提交
+        form.on('submit(add)', function (data) {
+            //发异步，把数据提交给php
+            $.post("{:url('Brige/saveProduct')}",{"field":data.field},function(res){
+                if(res == 1){
+                    layer.alert("添加成功", {icon: 6}, function () {
+                        // 获得frame索引
+                        var index = parent.layer.getFrameIndex(window.name);
+                        //关闭当前frame
+                        parent.layer.close(index);
+                    });
+                }else if(res == 3){
+                    layer.msg("已经添加过了", {icon: 2});
+                } else{
+                    layer.msg("添加失败!", {icon: 2});
+                }
+            }, 'JSON');
+
+            return false;
+        });
+
+    });
+</script>
+</body>
+
+</html>

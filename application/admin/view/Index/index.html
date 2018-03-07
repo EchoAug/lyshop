@@ -1,0 +1,50 @@
+{include file="Public/header" /}
+<body>
+<!-- 顶部开始 -->
+<div class="container">
+    <div class="logo"><a href="javascript:;">{:config('title')}</a></div>
+    <div class="left_open">
+        <i title="展开左侧栏" class="iconfont">&#xe699;</i>
+    </div>
+    <ul class="layui-nav left fast-add" lay-filter="">
+        <li class="layui-nav-item">
+            <a href="javascript:;"> + 新增</a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                <dd><a onclick="x_admin_show('商品','{:url("Product/add")}')"><i class="iconfont">&#xe6a2;</i>商品</a></dd>
+                <dd><a onclick="x_admin_show('冰箱','{:url("Brige/add")}',550,350)"><i class="iconfont">&#xe6a8;</i>冰箱</a></dd>
+            </dl>
+        </li>
+    </ul>
+    <ul class="layui-nav right" lay-filter="">
+        <li class="layui-nav-item">
+            <a href="javascript:;">{:session('admin_name')}</a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                <!--<dd><a onclick="x_admin_show('个人信息','http://www.baidu.com')">个人信息</a></dd>-->
+                <!--<dd><a onclick="x_admin_show('切换帐号','http://www.baidu.com')">切换帐号</a></dd>-->
+                <dd><a href="{:url('Login/logout')}">退出登录</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item to-index"><a href="http://www.3ink.cn/shop/index.html">前台首页</a></li>
+    </ul>
+
+</div>
+<!-- 顶部结束 -->
+<!-- 中部开始 -->
+{include file="Public/menu" /}
+<!-- 右侧主体开始 -->
+<div class="page-content">
+    <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowClose="false">
+        <ul class="layui-tab-title">
+            <li>首页</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <iframe src={:url('index/welcome')} frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="page-content-bg"></div>
+<!-- 右侧主体结束 -->
+<!-- 中部结束 -->
+{include file="Public/footer" /}

@@ -1,0 +1,154 @@
+{include file="Public/header" /}
+
+<body>
+<div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="javasrcipt:;">商品管理</a>
+        <a href="javasrcipt:;">冰箱列表</a>
+        <a>
+          <cite>冰箱首页</cite></a>
+      </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+</div>
+<div class="x-body">
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>冰箱编号</th>
+            <th>冰箱地址</th>
+            <th>总营业额</th>
+            <th>今日营业额</th>
+            <th>冰箱商品总价</th>
+            <th>冰箱描述</th>
+            <th>是否缺货</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {volist name="briges" id="vo"}
+        <tr>
+            <td>{$vo.code}</td>
+            <td>{$vo.address}</td>
+            <td>¥ <span style="color: #FF5722;">{$vo.money}</span></td>
+            <td>
+                ¥
+                {if condition="$vo.dayliSum eq ''"}
+                <span style="color: #FF5722;">0</span>
+                {else /}
+                <span style="color: #FF5722;">{$vo.dayliSum}</span>
+                {/if}
+            </td>
+            <td>¥ <span style="color: #5FB878;">{$vo.residue}</span></td>
+            <td>
+                <span style="color: #2a493c;">
+                    {if condition="$vo.description eq ''"} 暂无描述... {else /} {$vo.description} {/if}
+                </span>
+            </td>
+            <td class="td-status">
+                {if condition="$vo.isBackOver eq 1"}
+                <span class="layui-btn layui-btn-danger layui-btn-mini">已缺货</span>
+                {else /}
+                <span class="layui-btn layui-btn-normal layui-btn-mini">暂不缺货</span>
+                {/if}
+            </td>
+            <td style="width: 8%;">
+                <a class="operation-icon" title="查看产品" href="{:url("Brige/product",["id" => $vo.brige_id])}">
+                <i class="layui-icon">&#xe698;</i>
+                </a>
+                <a class="operation-icon" title="查看补货单" href='{:url("Brige/backOverPage",["bid" => $vo.brige_id])}' >
+                    <i class="layui-icon">&#xe63c;</i>
+                </a>
+                <a class="operation-icon" title="销量统计" href='{:url("Brige/sellCharts",["brige_id" => $vo.brige_id])}'>
+                <i class="layui-icon">&#xe629;</i>
+                </a>
+                <a class="operation-icon" title="记录丢失商品" onclick="x_admin_show('商品丢失记录','{:url("Brige/ProductLost",["brige_id" => $vo.brige_id])}')"
+                    href="javascript:;">
+                    <i class="layui-icon">&#xe6b2;</i>
+                </a>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    <div class="page">
+
+    </div>
+
+</div>
+<script>
+    layui.use('laydate', function () {
+        $ = layui.jquery;
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+
+    /*用户-停用*/
+    function member_stop(obj, id) {
+        layer.confirm('确认要停用吗？', function (index) {
+
+            if ($(obj).attr('title') == '启用') {
+
+                //发异步把用户状态进行更改
+                $(obj).attr('title', '停用')
+                $(obj).find('i').html('&#xe62f;');
+
+                $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
+                layer.msg('已停用!', {icon: 5, time: 1000});
+
+            } else {
+                $(obj).attr('title', '启用')
+                $(obj).find('i').html('&#xe601;');
+
+                $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
+                layer.msg('已启用!', {icon: 5, time: 1000});
+            }
+
+        });
+    }
+
+    /*用户-删除*/
+    function member_del(obj, id) {
+        layer.confirm('确认要删除吗？', function (index) {
+            //发异步删除数据
+            $.post("{:url('Brige/del')}",{"id": id}, function(res){
+                if(res == 1){
+                    layer.msg('已删除!', {icon: 1, time: 1000});
+                } else{
+                    layer.msg('删除失败!', {icon: 2, time: 1000});
+                }
+            }, 'JSON');
+
+        });
+    }
+
+
+    function delAll(argument) {
+
+        var data = tableCheck.getData();
+
+        layer.confirm('确认要删除吗？', function (index) {
+            //捉到所有被选中的，发异步进行删除
+            $.post("{:url('Brige/batchDel')}",{"ids": data}, function(res){
+                if(res == 1){
+                    layer.msg('删除成功', {icon: 1});
+                }else{
+                    layer.msg('删除失败', {icon: 2});
+                }
+            }, 'JSON');
+        });
+    }
+</script>
+</body>
+
+</html>

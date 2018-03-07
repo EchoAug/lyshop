@@ -1,0 +1,75 @@
+{include file="Public/header" /}
+<body>
+<div class="x-body">
+    <form class="layui-form">
+
+        <div class="layui-form-item">
+            <label for="name" class="layui-form-label">
+                <span class="x-red">*</span>代理商名字
+            </label>
+            <div class="layui-input-block">
+                <input type="text" id="name" name="name" required="" lay-verify="require"
+                       autocomplete="off" class="layui-input" value="{$agent.name}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="mobile" class="layui-form-label">
+                <span class="x-red">*</span>联系手机
+            </label>
+            <div class="layui-input-block">
+                <input type="text" id="mobile" name="mobile" required="" lay-verify="mobile"
+                       autocomplete="off" class="layui-input" value="{$agent.mobile}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="brige_id" class="layui-form-label">
+                <span class="x-red">*</span>管理的冰箱编号
+            </label>
+            <div class="layui-input-block">
+                <select name="brige_id" lay-verify="required" id="brige_id" lay-search>
+                    {volist name="briges" id="vo"}
+                        <option value="{$vo.brige_id}" {if condition="$vo.brige_id eq $agent.brige_id"}selected{/if} >{$vo.code}</option>
+                    {/volist}
+                </select>
+            </div>
+        </div>
+        <input type="hidden" value="{:input('param.id')}" name="id">
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+            </label>
+            <button class="layui-btn" lay-filter="add" lay-submit="">
+                修改信息
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+    layui.use(['form', 'layer'], function () {
+        $ = layui.jquery;
+        var form = layui.form;
+        var layer = layui.layer;
+
+        //监听提交
+        form.on('submit(add)', function (data) {
+            //发异步，把数据提交给php
+            $.post("{:url('Admin/agentEdit')}",{"field":data.field},function(res){
+                if(res == 1){
+                    layer.alert("修改成功", {icon: 6}, function () {
+                        // 获得frame索引
+                        var index = parent.layer.getFrameIndex(window.name);
+                        //关闭当前frame
+                        parent.layer.close(index);
+                    });
+                } else{
+                    layer.msg("修改失败!", {icon: 2});
+                }
+            }, 'JSON');
+
+            return false;
+        });
+
+    });
+</script>
+</body>
+
+</html>
